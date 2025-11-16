@@ -1,0 +1,1 @@
+export const groupsReducer = (state = {}, action: any) => state;
