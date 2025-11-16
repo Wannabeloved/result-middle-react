@@ -1,1 +1,0 @@
-export const contactsReducer = (state = {}, action: any) => state;
