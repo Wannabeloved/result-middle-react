@@ -16,19 +16,20 @@
     "module": "esnext",
     "ignoreDeprecations": "6.0",
     "moduleResolution": "node",
+    "baseUrl": "./",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
     "paths": {
       "src/*": [
-        "./src/*"
+        "src/*"
       ]
     }
   },
   "include": [
+    "types.d.ts",
     "src",
-    "types.d.ts"
   ],
   "exclude": [
     "node_modules"
