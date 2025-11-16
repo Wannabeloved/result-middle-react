@@ -10,4 +10,6 @@ export interface ContactDto {
   address: string
   /** фото */
   photo: string
+  /** избранный */
+  isFavorite?: boolean
 }
