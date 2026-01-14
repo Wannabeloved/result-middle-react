@@ -3,16 +3,17 @@ import {Col, Row, Spinner, Alert} from 'react-bootstrap';
 import {useParams} from 'react-router-dom';
 import {ContactCard} from 'src/components/ContactCard';
 import {Empty} from 'src/components/Empty';
-import { useAppSelector } from 'src/store/hooks';
+// import { useAppSelector } from 'src/store/hooks';
+import { useGetContactsQuery } from 'src/store/api';
 
 export const ContactPage: FC = () => {
   const {contactId} = useParams<{ contactId: string }>();
-  const { contact, loading, error } = useAppSelector(state => {
-    return {
-      contact: state.contacts.items.find(({id}) => id === contactId),
-      loading: state.contacts.loading,
-      error: state.contacts.error,
-    }
+  const { contact, loading, error } = useGetContactsQuery(undefined, {
+    selectFromResult: ({ data, isLoading, isError }) => ({
+      contact: data?.find(({ id }) => id === contactId),
+      loading: isLoading,
+      error: isError ? 'Error loading contact' : undefined,
+    }),
   });
 
   if (loading) {

@@ -3,17 +3,16 @@ import {Col, Row, Spinner, Alert} from 'react-bootstrap';
 import {ContactCard} from 'src/components/ContactCard';
 import {FilterForm, FilterFormValues} from 'src/components/FilterForm';
 import { useAppSelector, useAppDispatch } from 'src/store/hooks';
-import { filterActions } from 'src/store/contacts/filter';
+import { setNameFilter, setGroupFilter } from 'src/store/filterSlice';
+import { useGetContactsQuery, useGetGroupsQuery } from 'src/store/api';
 
 export const ContactListPage = memo(() => {
   const dispatch = useAppDispatch();
-  const { contacts, groups, filter, loading, error } = useAppSelector(state => ({
-    contacts: state.contacts.items,
-    groups: state.groups.items,
-    filter: state.filter,
-    loading: state.contacts.loading || state.groups.loading,
-    error: state.contacts.error || state.groups.error,
-  }));
+  const { data: contacts = [], isLoading: isContactsLoading, isError: isContactsError } = useGetContactsQuery();
+  const { data: groups = [], isLoading: isGroupsLoading, isError: isGroupsError } = useGetGroupsQuery();
+  const filter = useAppSelector(state => state.filter);
+  const loading = isContactsLoading || isGroupsLoading;
+  const error = isContactsError || isGroupsError ? 'Data loading error' : undefined;
 
   const filteredContacts = useMemo(() => {
     const { name, groupId } = filter;
@@ -30,8 +29,8 @@ export const ContactListPage = memo(() => {
   }, [contacts, groups, filter]);
 
   const onSubmit = (fv: Partial<FilterFormValues>) => {
-    dispatch(filterActions.setNameFilter(fv.name || ''));
-    dispatch(filterActions.setGroupFilter(fv.groupId || ''));
+    dispatch(setNameFilter(fv.name || ''));
+    dispatch(setGroupFilter(fv.groupId || ''));
   };
 
   if (loading) {

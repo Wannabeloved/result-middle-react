@@ -1,19 +1,18 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import './MainApp.scss';
 import {ThemeProvider} from 'react-bootstrap';
 import {BrowserRouter, Route, Routes} from 'react-router-dom';
 import {Layout} from 'src/components/Layout';
 import {ContactListPage, GroupPage, ContactPage, FavoritListPage, GroupListPage} from 'src/pages';
-import { useAppDispatch } from 'src/store/hooks';
-import { fetchContacts, fetchGroups } from 'src/store/thunks';
+// import { useAppDispatch } from 'src/store/hooks';
+// import { fetchContacts, fetchGroups } from 'src/store/thunks';
 
 export const MainApp = () => {
-  const dispatch = useAppDispatch();
-
-  useEffect(() => {
-    dispatch(fetchContacts() as any); // as any because of thunk
-    dispatch(fetchGroups() as any); // as any because of thunk
-  }, [dispatch]);
+  // const dispatch = useAppDispatch();
+  // useEffect(() => {
+  //   dispatch(fetchContacts() as any); 
+  //   dispatch(fetchGroups() as any); 
+  // }, [dispatch]);
 
   return (
     <ThemeProvider

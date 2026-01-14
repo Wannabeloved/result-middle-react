@@ -4,23 +4,29 @@ import {useParams} from 'react-router-dom';
 import {GroupContactsCard} from 'src/components/GroupContactsCard';
 import {Empty} from 'src/components/Empty';
 import {ContactCard} from 'src/components/ContactCard';
-import { useAppSelector } from 'src/store/hooks';
+// import { useAppSelector } from 'src/store/hooks';
+import { useGetContactsQuery, useGetGroupsQuery } from 'src/store/api';
 
 export const GroupPage = memo(() => {
   const {groupId} = useParams<{ groupId: string }>();
-  const { group, contactsInGroup, loading, error } = useAppSelector(state => {
-    const group = state.groups.items.find(({id}) => id === groupId);
-    const contactsInGroup = group 
-      ? state.contacts.items.filter(({id}) => group.contactIds.includes(id))
-      : [];
-    
-    return {
-      group,
-      contactsInGroup,
-      loading: state.groups.loading || state.contacts.loading,
-      error: state.groups.error || state.contacts.error,
-    }
+  const { group, loading: groupLoading, error: groupError } = useGetGroupsQuery(undefined, {
+    selectFromResult: ({ data, isLoading, isError }) => ({
+      group: data?.find(({ id }) => id === groupId),
+      loading: isLoading,
+      error: isError,
+    }),
   });
+
+  const { contactsInGroup, loading: contactsLoading, error: contactsError } = useGetContactsQuery(undefined, {
+    selectFromResult: ({ data, isLoading, isError }) => ({
+      contactsInGroup: group ? data?.filter(({ id }) => group.contactIds.includes(id)) || [] : [],
+      loading: isLoading,
+      error: isError,
+    }),
+  });
+
+  const loading = groupLoading || contactsLoading;
+  const error = groupError || contactsError ? 'Error loading data' : undefined;
 
   if (loading) {
     return <Spinner animation="border" />;

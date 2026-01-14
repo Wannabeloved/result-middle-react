@@ -1,15 +1,17 @@
-import React, {memo, useMemo} from 'react';
+import React, {memo} from 'react';
 import {Col, Row, Spinner, Alert} from 'react-bootstrap';
 import {ContactCard} from 'src/components/ContactCard';
-import { useAppSelector } from 'src/store/hooks';
+// import { useAppSelector } from 'src/store/hooks';
+import { useGetContactsQuery } from 'src/store/api';
 
 export const FavoritListPage = memo(() => {
-  const { items: contacts, loading, error } = useAppSelector(state => state.contacts);
-
-  const favoriteContacts = useMemo(
-    () => contacts.filter(contact => contact.isFavorite),
-    [contacts]
-  );
+  const { items: favoriteContacts, loading, error } = useGetContactsQuery(undefined, {
+    selectFromResult: ({ data, isLoading, isError }) => ({
+      items: data?.filter(contact => contact.isFavorite) || [],
+      loading: isLoading,
+      error: isError ? 'Error loading data' : undefined,
+    }),
+  });
   if (loading) {
     return <Spinner animation="border" />;
   }
