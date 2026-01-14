@@ -1,46 +1,55 @@
-import React, {memo, useState} from 'react';
-import {CommonPageProps} from './types';
-import {Col, Row} from 'react-bootstrap';
+import React, {memo, useMemo} from 'react';
+import {Col, Row, Spinner, Alert} from 'react-bootstrap';
 import {ContactCard} from 'src/components/ContactCard';
 import {FilterForm, FilterFormValues} from 'src/components/FilterForm';
-import {ContactDto} from 'src/types/dto/ContactDto';
+import { useAppSelector, useAppDispatch } from 'src/store/hooks';
+import { filterActions } from 'src/store/contacts/filter';
 
+export const ContactListPage = memo(() => {
+  const dispatch = useAppDispatch();
+  const { contacts, groups, filter, loading, error } = useAppSelector(state => ({
+    contacts: state.contacts.items,
+    groups: state.groups.items,
+    filter: state.filter,
+    loading: state.contacts.loading || state.groups.loading,
+    error: state.contacts.error || state.groups.error,
+  }));
 
-export const ContactListPage = memo<CommonPageProps>(({
-  contactsState, groupContactsState
-}) => {
-  const [contacts, setContacts] = useState<ContactDto[]>(contactsState[0])
+  const filteredContacts = useMemo(() => {
+    const { name, groupId } = filter;
+    const nameLower = name.toLowerCase();
+    
+    const group = groups.find(g => g.id === groupId);
+    const contactIdsInGroup = group ? new Set(group.contactIds) : null;
+
+    return contacts.filter(contact => {
+      const nameMatch = !nameLower || contact.name.toLowerCase().includes(nameLower);
+      const groupMatch = !contactIdsInGroup || contactIdsInGroup.has(contact.id);
+      return nameMatch && groupMatch;
+    });
+  }, [contacts, groups, filter]);
+
   const onSubmit = (fv: Partial<FilterFormValues>) => {
-    let findContacts: ContactDto[] = contactsState[0];
+    dispatch(filterActions.setNameFilter(fv.name || ''));
+    dispatch(filterActions.setGroupFilter(fv.groupId || ''));
+  };
 
-    if (fv.name) {
-      const fvName = fv.name.toLowerCase();
-      findContacts = findContacts.filter(({name}) => (
-        name.toLowerCase().indexOf(fvName) > -1
-      ))
-    }
+  if (loading) {
+    return <Spinner animation="border" />;
+  }
 
-    if (fv.groupId) {
-      const groupContacts = groupContactsState[0].find(({id}) => id === fv.groupId);
-
-      if (groupContacts) {
-        findContacts = findContacts.filter(({id}) => (
-          groupContacts.contactIds.includes(id)
-        ))
-      }
-    }
-
-    setContacts(findContacts)
+  if (error) {
+    return <Alert variant="danger">{error}</Alert>;
   }
 
   return (
     <Row xxl={1}>
       <Col className="mb-3">
-        <FilterForm groupContactsList={groupContactsState[0]} initialValues={{}} onSubmit={onSubmit} />
+        <FilterForm groupContactsList={groups} initialValues={filter} onSubmit={onSubmit} />
       </Col>
       <Col>
         <Row xxl={4} className="g-4">
-          {contacts.map((contact) => (
+          {filteredContacts.map((contact) => (
             <Col key={contact.id}>
               <ContactCard contact={contact} withLink />
             </Col>
@@ -49,4 +58,4 @@ export const ContactListPage = memo<CommonPageProps>(({
       </Col>
     </Row>
   );
-})
+});
