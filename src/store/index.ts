@@ -1,11 +1,15 @@
-import { createStore, applyMiddleware } from 'redux';
-import { thunk } from 'redux-thunk'; // Corrected import
-import rootReducer, { type RootState } from './reducer'; // Import RootState
+import { configureStore } from '@reduxjs/toolkit';
+import { contactsApi } from './api';
+import { filterReducer } from './filterSlice';
 
-// @ts-ignore
-const store = createStore(rootReducer, applyMiddleware(thunk));
+export const store = configureStore({
+  reducer: {
+    [contactsApi.reducerPath]: contactsApi.reducer,
+    filter: filterReducer,
+  },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(contactsApi.middleware),
+});
 
 export type AppDispatch = typeof store.dispatch;
-export type { RootState }; // Export RootState
-
-export default store;
+export type RootState = ReturnType<typeof store.getState>;
