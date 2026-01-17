@@ -1,24 +1,21 @@
 import React, {memo} from 'react';
 import {Col, Row, Spinner, Alert} from 'react-bootstrap';
 import {GroupContactsCard} from 'src/components/GroupContactsCard';
-// import { useAppSelector } from 'src/store/hooks';
-import { useGetGroupsQuery } from 'src/store/api';
+import { observer } from 'mobx-react-lite';
+import { useStore } from 'src/store/RootStore';
 
-export const GroupListPage = memo(() => {
-  const { data: groups = [], loading, error } = useGetGroupsQuery(undefined, {
-    selectFromResult: ({ data, isLoading, isError }) => ({
-      data,
-      loading: isLoading,
-      error: isError ? 'Error loading data' : undefined,
-    }),
-  });
+export const GroupListPage = observer(() => {
+  const store = useStore();
+  const { groups, isLoading, error } = store;
+  const loading = isLoading.groups;
+  const dataError = error.groups ? 'Error loading data' : undefined;
 
   if (loading) {
     return <Spinner animation="border" />;
   }
 
-  if (error) {
-    return <Alert variant="danger">{error}</Alert>;
+  if (dataError) {
+    return <Alert variant="danger">{dataError}</Alert>;
   }
 
   return (
