@@ -4,23 +4,22 @@ import {Card, ListGroup, Button} from 'react-bootstrap';
 import {Link} from 'react-router-dom';
 // import { useAppDispatch } from 'src/store/hooks';
 // import { contactsActions } from 'src/store/contacts/contacts';
-import { useToggleFavoriteMutation } from 'src/store/api';
+import { observer } from 'mobx-react-lite';
+import { useStore } from 'src/store/RootStore';
 
 interface ContactCardProps {
   contact: ContactDto,
   withLink?: boolean
 }
 
-export const ContactCard = memo<ContactCardProps>(({
+export const ContactCard = observer<ContactCardProps>(({
     contact, withLink
   }) => {
-    const { photo, id, name, phone, birthday, address, isFavorite } = contact;
-    const [toggleFavorite] = useToggleFavoriteMutation();
-    // const dispatch = useAppDispatch();
+    const { id, name, phone, birthday, address, photo, isFavorite } = contact;
+    const store = useStore();
 
     const handleToggleFavorite = () => {
-      // dispatch(contactsActions.toggleFavorite(id));
-      toggleFavorite({ id, isFavorite: !isFavorite });
+      store.toggleFavorite(id, !isFavorite);
     };
 
     return (
@@ -44,4 +43,4 @@ export const ContactCard = memo<ContactCardProps>(({
       </Card>
     );
   }
-)
+);
