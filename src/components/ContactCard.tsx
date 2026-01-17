@@ -2,8 +2,9 @@ import React, {memo} from 'react';
 import {ContactDto} from 'src/types/dto/ContactDto';
 import {Card, ListGroup, Button} from 'react-bootstrap';
 import {Link} from 'react-router-dom';
-import { useAppDispatch } from 'src/store/hooks';
-import { contactsActions } from 'src/store/contacts/contacts';
+// import { useAppDispatch } from 'src/store/hooks';
+// import { contactsActions } from 'src/store/contacts/contacts';
+import { useToggleFavoriteMutation } from 'src/store/api';
 
 interface ContactCardProps {
   contact: ContactDto,
@@ -14,10 +15,12 @@ export const ContactCard = memo<ContactCardProps>(({
     contact, withLink
   }) => {
     const { photo, id, name, phone, birthday, address, isFavorite } = contact;
-    const dispatch = useAppDispatch();
+    const [toggleFavorite] = useToggleFavoriteMutation();
+    // const dispatch = useAppDispatch();
 
     const handleToggleFavorite = () => {
-      dispatch(contactsActions.toggleFavorite(id));
+      // dispatch(contactsActions.toggleFavorite(id));
+      toggleFavorite({ id, isFavorite: !isFavorite });
     };
 
     return (
