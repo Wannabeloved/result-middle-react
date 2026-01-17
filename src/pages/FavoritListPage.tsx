@@ -1,22 +1,19 @@
 import React, {memo} from 'react';
 import {Col, Row, Spinner, Alert} from 'react-bootstrap';
 import {ContactCard} from 'src/components/ContactCard';
-// import { useAppSelector } from 'src/store/hooks';
-import { useGetContactsQuery } from 'src/store/api';
+import { observer } from 'mobx-react-lite';
+import { useStore } from 'src/store/RootStore';
 
-export const FavoritListPage = memo(() => {
-  const { items: favoriteContacts, loading, error } = useGetContactsQuery(undefined, {
-    selectFromResult: ({ data, isLoading, isError }) => ({
-      items: data?.filter(contact => contact.isFavorite) || [],
-      loading: isLoading,
-      error: isError ? 'Error loading data' : undefined,
-    }),
-  });
+export const FavoritListPage = observer(() => {
+  const store = useStore();
+  const { favoriteContacts, isLoading, error } = store;
+  const loading = isLoading.contacts;
+  const dataError = error.contacts ? 'Error loading data' : undefined;
   if (loading) {
     return <Spinner animation="border" />;
   }
-  if (error) {
-    return <Alert variant="danger">{error}</Alert>;
+  if (dataError) {
+    return <Alert variant="danger">{dataError}</Alert>;
   }
 
 
