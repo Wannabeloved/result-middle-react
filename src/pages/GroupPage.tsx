@@ -4,36 +4,27 @@ import {useParams} from 'react-router-dom';
 import {GroupContactsCard} from 'src/components/GroupContactsCard';
 import {Empty} from 'src/components/Empty';
 import {ContactCard} from 'src/components/ContactCard';
-// import { useAppSelector } from 'src/store/hooks';
-import { useGetContactsQuery, useGetGroupsQuery } from 'src/store/api';
+import { observer } from 'mobx-react-lite';
+import { useStore } from 'src/store/RootStore';
 
-export const GroupPage = memo(() => {
-  const {groupId} = useParams<{ groupId: string }>();
-  const { group, loading: groupLoading, error: groupError } = useGetGroupsQuery(undefined, {
-    selectFromResult: ({ data, isLoading, isError }) => ({
-      group: data?.find(({ id }) => id === groupId),
-      loading: isLoading,
-      error: isError,
-    }),
-  });
+export const GroupPage = observer(() => {
+  const { groupId } = useParams<{ groupId: string }>();
+  const store = useStore();
+  
+  const group = store.groups.find(({ id }) => id === groupId);
+  const contactsInGroup = group 
+    ? store.contacts.filter(({ id }) => group.contactIds.includes(id)) 
+    : [];
 
-  const { contactsInGroup, loading: contactsLoading, error: contactsError } = useGetContactsQuery(undefined, {
-    selectFromResult: ({ data, isLoading, isError }) => ({
-      contactsInGroup: group ? data?.filter(({ id }) => group.contactIds.includes(id)) || [] : [],
-      loading: isLoading,
-      error: isError,
-    }),
-  });
-
-  const loading = groupLoading || contactsLoading;
-  const error = groupError || contactsError ? 'Error loading data' : undefined;
+  const loading = store.isLoading.groups || store.isLoading.contacts;
+  const dataError = store.error.groups || store.error.contacts ? 'Error loading data' : undefined;
 
   if (loading) {
     return <Spinner animation="border" />;
   }
 
-  if (error) {
-    return <Alert variant="danger">{error}</Alert>;
+  if (dataError) {
+    return <Alert variant="danger">{dataError}</Alert>;
   }
 
   return (
